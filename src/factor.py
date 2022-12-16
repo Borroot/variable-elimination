@@ -35,16 +35,13 @@ class Factor:
 
         # create the new values list
         values = []
-        for chunk in range(chunk_size * variable_index, len(self.values), chunk_size + jump):
-            print(chunk)
+        for chunk in range(chunk_size * value_index, len(self.values), chunk_size + jump):
             for i in range(0, chunk_size):
                 values.append(self.values[chunk + i])
 
         # create the new variables list and factor
         variables = [other for other in self.variables if other != variable]
         return Factor(variables, values)
-
-        print(chunk_num, chunk_size, jump)
 
 
     def __str__(self):

@@ -1,19 +1,21 @@
 from network import Network, InternalNetwork
 from algorithm import ve
 
+
 if __name__ == '__main__':
-    # The class BayesNet represents a Bayesian network from a .bif file in several variables
     network = Network('data/survey.bif')
 
     print(network.variables)
 
     for factor in network.factors:
         print(factor)
+        print()
 
-    factor = network.variable_to_factor(network.name_to_variable('T'))
-    print('-------------')
+    factor = network.variable_to_factor(network.name_to_variable('E'))
+    print('---------------------------------')
     print(factor)
-    print(factor.reduce(network.name_to_variable('R'), 'small'))
+    print()
+    print(factor.reduce(network.name_to_variable('A'), 'adult'))
 
     # query = ['Alarm', 'Smoke']
     # evidence = {'Tampering': 'True'}
