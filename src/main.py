@@ -7,15 +7,19 @@ if __name__ == '__main__':
 
     print(network.variables)
 
-    for factor in network.factors:
-        print(factor)
-        print()
+    print(network.variable_to_factor(network.name_to_variable('E')))
+    print(network.variable_to_factor(network.name_to_variable('T')))
 
-    factor = network.variable_to_factor(network.name_to_variable('E'))
-    print('---------------------------------')
-    print(factor)
-    print()
-    print(factor.reduce(network.name_to_variable('A'), 'adult'))
+    print('---------------------------------\n')
+
+    factor = network.variable_to_factor(network.name_to_variable('T'))
+    # margin = factor.marginalize(network.name_to_variable('T'))
+    # print(margin)
+    margin = factor.marginalize(network.name_to_variable('R'))
+    print(margin)
+
+    # print(factor)
+    # print(factor.marginalize(network.name_to_variable('A')))
 
     # query = ['Alarm', 'Smoke']
     # evidence = {'Tampering': 'True'}
