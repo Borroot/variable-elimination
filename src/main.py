@@ -7,13 +7,9 @@ import random
 
 
 if __name__ == '__main__':
-    network = Network('data/survey.bif')
+    network = Network('data/alarm.bif')
 
-    query = ['Alarm', 'Smoke']
-    evidence = {'Tampering': 'True'}
+    query = ['Tampering']
+    evidence = {'Smoke': 'True', 'Leaving': 'False'}
 
-    ve(network, query, evidence, [])
-
-    # Determine your elimination ordering before you call the run function. The elimination ordering
-    # is either specified by a list or a heuristic function that determines the elimination ordering
-    # given the network. Experimentation with different heuristics will earn bonus points.
+    ve(network, query, evidence, order = ['Fire', 'Alarm'])

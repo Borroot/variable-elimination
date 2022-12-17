@@ -201,6 +201,26 @@ class TestReduceSmall(unittest.TestCase):
         self.assertEqual(reduce.values, [0.02])
 
 
+class TestReduceSmallProduct(unittest.TestCase):
+
+
+    def setUp(self):
+        self.network = Network('data/alarm.bif')
+
+
+    def test_1(self):
+        factor1 = self.network.variable_to_factor(self.network.name_to_variable('Tampering'))
+        reduce1 = factor1.reduce(self.network.name_to_variable('Tampering'), 'False')
+
+        factor2 = self.network.variable_to_factor(self.network.name_to_variable('Alarm'))
+        reduce2 = factor2.reduce(self.network.name_to_variable('Tampering'), 'False')
+
+        product = reduce1.product(reduce2)
+        answer = [0.98*0.9999, 0.98*0.01, 0.98*0.0001, 0.98*0.99]
+        for value1, value2 in zip(product.values, answer):
+            self.assertAlmostEqual(value1, value2)
+
+
 class TestReduceSmall(unittest.TestCase):
 
 
