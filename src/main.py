@@ -12,4 +12,5 @@ if __name__ == '__main__':
     query = ['Tampering']
     evidence = {'Smoke': 'True', 'Leaving': 'False'}
 
+    # TODO add option verbose
     ve(network, query, evidence, order = ['Fire', 'Alarm'])

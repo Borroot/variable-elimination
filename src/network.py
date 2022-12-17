@@ -69,7 +69,8 @@ class InternalNetwork:
     It can read files in a .bif format (if the formatting is
     along the lines of http://www.bnlearn.com/bnrepository/)
 
-    Uses pandas DataFrames for representing conditional probability tables
+    I made changes so that there is no global class state and I removed the
+    SEVEN memory leaks from not closed file descriptors.....
     """
 
 

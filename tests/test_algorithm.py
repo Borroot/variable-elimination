@@ -6,6 +6,9 @@ from network import Network
 from algorithm import ve, barren_nodes
 
 
+# TODO add system tests for VE
+
+
 class TestBarrenAlarm(unittest.TestCase):
 
 
