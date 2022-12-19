@@ -1,0 +1,334 @@
+-----------------------------------------------------
+Running VE on the following setup
+-----------------------------------------------------
+
+Query: Leaving
+Evidence: 
+Barren: Report, Smoke 
+
+-----------------------------------------------------
+Elimination order
+-----------------------------------------------------
+
+No elimination order instructions are given
+An arbitrary elimination order is chosen
+
+Order: [Alarm, Fire, Tampering]
+
+-----------------------------------------------------
+Reduced factors of nonbarren nodes based on evidence
+Evidence: 
+-----------------------------------------------------
+
+f00(Alarm, Fire, Tampering)()
+f01(Fire)()
+f02(Alarm, Leaving)()
+f05(Tampering)()
+
+f00, variables: [Alarm, Fire, Tampering], reduced: []
+   Alarm   Fire Tampering    prob
+0  False  False     False  0.9999
+1  False  False      True  0.1500
+2  False   True     False  0.0100
+3  False   True      True  0.5000
+4   True  False     False  0.0001
+5   True  False      True  0.8500
+6   True   True     False  0.9900
+7   True   True      True  0.5000
+
+f01, variables: [Fire], reduced: []
+    Fire  prob
+0  False  0.99
+1   True  0.01
+
+f02, variables: [Alarm, Leaving], reduced: []
+   Alarm Leaving   prob
+0  False   False  0.999
+1  False    True  0.001
+2   True   False  0.120
+3   True    True  0.880
+
+f05, variables: [Tampering], reduced: []
+  Tampering  prob
+0     False  0.98
+1      True  0.02
+
+-----------------------------------------------------
+Main loop of VE, going over all the variables
+Order: [Alarm, Fire, Tampering]
+-----------------------------------------------------
+
+f00(Alarm, Fire, Tampering)()
+f01(Fire)()
+f02(Alarm, Leaving)()
+f05(Tampering)()
+
+f00, variables: [Alarm, Fire, Tampering], reduced: []
+   Alarm   Fire Tampering    prob
+0  False  False     False  0.9999
+1  False  False      True  0.1500
+2  False   True     False  0.0100
+3  False   True      True  0.5000
+4   True  False     False  0.0001
+5   True  False      True  0.8500
+6   True   True     False  0.9900
+7   True   True      True  0.5000
+
+f01, variables: [Fire], reduced: []
+    Fire  prob
+0  False  0.99
+1   True  0.01
+
+f02, variables: [Alarm, Leaving], reduced: []
+   Alarm Leaving   prob
+0  False   False  0.999
+1  False    True  0.001
+2   True   False  0.120
+3   True    True  0.880
+
+f05, variables: [Tampering], reduced: []
+  Tampering  prob
+0     False  0.98
+1      True  0.02
+
+-----------------------------------------------------
+Processing variable Alarm
+-----------------------------------------------------
+
+Multiplying the following factors:
+
+f02(Alarm, Leaving)()
+f00(Alarm, Fire, Tampering)()
+
+f02, variables: [Alarm, Leaving], reduced: []
+   Alarm Leaving   prob
+0  False   False  0.999
+1  False    True  0.001
+2   True   False  0.120
+3   True    True  0.880
+
+f00, variables: [Alarm, Fire, Tampering], reduced: []
+   Alarm   Fire Tampering    prob
+0  False  False     False  0.9999
+1  False  False      True  0.1500
+2  False   True     False  0.0100
+3  False   True      True  0.5000
+4   True  False     False  0.0001
+5   True  False      True  0.8500
+6   True   True     False  0.9900
+7   True   True      True  0.5000
+
+Resulting in:
+
+f06(Alarm, Fire, Leaving, Tampering)()
+
+f06, variables: [Alarm, Fire, Leaving, Tampering], reduced: []
+    Alarm   Fire Leaving Tampering      prob
+0   False  False   False     False  0.998900
+1   False  False   False      True  0.001000
+2   False  False    True     False  0.149850
+3   False  False    True      True  0.000150
+4   False   True   False     False  0.009990
+5   False   True   False      True  0.000010
+6   False   True    True     False  0.499500
+7   False   True    True      True  0.000500
+8    True  False   False     False  0.000012
+9    True  False   False      True  0.000088
+10   True  False    True     False  0.102000
+11   True  False    True      True  0.748000
+12   True   True   False     False  0.118800
+13   True   True   False      True  0.871200
+14   True   True    True     False  0.060000
+15   True   True    True      True  0.440000
+
+Marginalizing over Alarm gives:
+
+f07(Fire, Leaving, Tampering)()
+
+f07, variables: [Fire, Leaving, Tampering], reduced: []
+    Fire Leaving Tampering      prob
+0  False   False     False  0.998912
+1  False   False      True  0.001088
+2  False    True     False  0.251850
+3  False    True      True  0.748150
+4   True   False     False  0.128790
+5   True   False      True  0.871210
+6   True    True     False  0.559500
+7   True    True      True  0.440500
+
+The new factors are:
+
+f01(Fire)()
+f05(Tampering)()
+f07(Fire, Leaving, Tampering)()
+
+f01, variables: [Fire], reduced: []
+    Fire  prob
+0  False  0.99
+1   True  0.01
+
+f05, variables: [Tampering], reduced: []
+  Tampering  prob
+0     False  0.98
+1      True  0.02
+
+f07, variables: [Fire, Leaving, Tampering], reduced: []
+    Fire Leaving Tampering      prob
+0  False   False     False  0.998912
+1  False   False      True  0.001088
+2  False    True     False  0.251850
+3  False    True      True  0.748150
+4   True   False     False  0.128790
+5   True   False      True  0.871210
+6   True    True     False  0.559500
+7   True    True      True  0.440500
+
+-----------------------------------------------------
+Processing variable Fire
+-----------------------------------------------------
+
+Multiplying the following factors:
+
+f01(Fire)()
+f07(Fire, Leaving, Tampering)()
+
+f01, variables: [Fire], reduced: []
+    Fire  prob
+0  False  0.99
+1   True  0.01
+
+f07, variables: [Fire, Leaving, Tampering], reduced: []
+    Fire Leaving Tampering      prob
+0  False   False     False  0.998912
+1  False   False      True  0.001088
+2  False    True     False  0.251850
+3  False    True      True  0.748150
+4   True   False     False  0.128790
+5   True   False      True  0.871210
+6   True    True     False  0.559500
+7   True    True      True  0.440500
+
+Resulting in:
+
+f08(Fire, Leaving, Tampering)()
+
+f08, variables: [Fire, Leaving, Tampering], reduced: []
+    Fire Leaving Tampering      prob
+0  False   False     False  0.988923
+1  False   False      True  0.001077
+2  False    True     False  0.249331
+3  False    True      True  0.740668
+4   True   False     False  0.001288
+5   True   False      True  0.008712
+6   True    True     False  0.005595
+7   True    True      True  0.004405
+
+Marginalizing over Fire gives:
+
+f09(Leaving, Tampering)()
+
+f09, variables: [Leaving, Tampering], reduced: []
+  Leaving Tampering      prob
+0   False     False  0.990211
+1   False      True  0.009789
+2    True     False  0.254926
+3    True      True  0.745073
+
+The new factors are:
+
+f05(Tampering)()
+f09(Leaving, Tampering)()
+
+f05, variables: [Tampering], reduced: []
+  Tampering  prob
+0     False  0.98
+1      True  0.02
+
+f09, variables: [Leaving, Tampering], reduced: []
+  Leaving Tampering      prob
+0   False     False  0.990211
+1   False      True  0.009789
+2    True     False  0.254926
+3    True      True  0.745073
+
+-----------------------------------------------------
+Processing variable Tampering
+-----------------------------------------------------
+
+Multiplying the following factors:
+
+f05(Tampering)()
+f09(Leaving, Tampering)()
+
+f05, variables: [Tampering], reduced: []
+  Tampering  prob
+0     False  0.98
+1      True  0.02
+
+f09, variables: [Leaving, Tampering], reduced: []
+  Leaving Tampering      prob
+0   False     False  0.990211
+1   False      True  0.009789
+2    True     False  0.254926
+3    True      True  0.745073
+
+Resulting in:
+
+f10(Leaving, Tampering)()
+
+f10, variables: [Leaving, Tampering], reduced: []
+  Leaving Tampering      prob
+0   False     False  0.970407
+1   False      True  0.000196
+2    True     False  0.249828
+3    True      True  0.014901
+
+Marginalizing over Tampering gives:
+
+f11(Leaving)()
+
+f11, variables: [Leaving], reduced: []
+  Leaving      prob
+0   False  0.970602
+1    True  0.264729
+
+The new factors are:
+
+f11(Leaving)()
+
+f11, variables: [Leaving], reduced: []
+  Leaving      prob
+0   False  0.970602
+1    True  0.264729
+
+-----------------------------------------------------
+Multiply the final factors
+-----------------------------------------------------
+
+Multiplying the following factors:
+
+f11(Leaving)()
+
+f11, variables: [Leaving], reduced: []
+  Leaving      prob
+0   False  0.970602
+1    True  0.264729
+
+Resulting in:
+
+f11(Leaving)()
+
+f11, variables: [Leaving], reduced: []
+  Leaving      prob
+0   False  0.970602
+1    True  0.264729
+
+-----------------------------------------------------
+Normalization and final factor
+-----------------------------------------------------
+
+f12, variables: [Leaving], reduced: []
+  Leaving      prob
+0   False  0.785702
+1    True  0.214298
+

@@ -91,9 +91,9 @@ def init_order(network, query, evidence, barren, order):
 
     # use an arbitrary order if no instructions are given
     if order is None:
-        print('No elimination order instructions are given')
-        print('An arbitrary elimination order is chosen')
-        print(f'\nOrder: {marginalize}\n')
+        util.print_simple('No elimination order instructions are given')
+        util.print_simple('An arbitrary elimination order is chosen')
+        util.print_simple(f'\nOrder: {marginalize}\n')
         return marginalize
 
     # use the order that is given
@@ -102,8 +102,8 @@ def init_order(network, query, evidence, barren, order):
         assert len(set(list(map(lambda variable: variable.name, marginalize)) + order)) == len(order)
 
         order = list(map(network.name_to_variable, order))
-        print('An elimination order was provided')
-        print(f'\nOrder: {order}\n')
+        util.print_simple('An elimination order was provided')
+        util.print_simple(f'\nOrder: {order}\n')
         return order
 
     # TODO elimination order algorithm is given
@@ -115,7 +115,7 @@ def multiply_final(factors):
     # sort the factors based on size
     factors.sort(key = lambda factor: len(factor.variables))
 
-    print('Multiplying the following factors:\n')
+    util.print_simple('Multiplying the following factors:\n')
     util.print_factors_brief(factors)
 
     # multiply the factors
@@ -123,7 +123,8 @@ def multiply_final(factors):
     for factor in factors[1:]:
         final_factor = final_factor.product(factor)
 
-    print(f'Resulting in:\n\n{final_factor.brief()}\n')
+    util.print_simple(f'Resulting in:\n')
+    util.print_factor_brief(final_factor)
     return final_factor
 
 
@@ -142,7 +143,7 @@ def multiply(factors, variable):
     # sort the factors based on size
     product_factors.sort(key = lambda factor: len(factor.variables))
 
-    print('Multiplying the following factors:\n')
+    util.print_simple('Multiplying the following factors:\n')
     util.print_factors_brief(product_factors)
 
     # multiply the factors
@@ -150,15 +151,16 @@ def multiply(factors, variable):
     for factor in product_factors[1:]:
         final_factor = final_factor.product(factor)
 
-    print(f'Resulting in:\n\n{final_factor.brief()}\n')
+    util.print_simple(f'Resulting in:\n')
+    util.print_factor_brief(final_factor)
     return new_factors, final_factor
 
 
 def marginalize(factor, variable):
     marginalized_factor = factor.marginalize(variable)
 
-    print(f'Marginalizing over {variable} gives:\n')
-    print(marginalized_factor.brief(), '\n')
+    util.print_simple(f'Marginalizing over {variable} gives:\n')
+    util.print_factor_brief(marginalized_factor)
 
     return marginalized_factor
 
@@ -194,14 +196,15 @@ def ve(network, query, evidence, order = None):
         # marginalize the variable
         factors.append(marginalize(multiplied_factor, variable))
 
-        print('The new factors are:\n')
+        util.print_simple('The new factors are:\n')
         util.print_factors_brief(factors)
 
-    util.print_header(f'Multiple the final factors')
+    util.print_header(f'Multiply the final factors')
     factor = multiply_final(factors)
 
     util.print_header(f'Normalization and final factor')
     factor = factor.normalize()
 
     # the final result of VE
-    print(factor)
+    util.print_factor(factor)
+    return factor

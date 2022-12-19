@@ -1,6 +1,6 @@
 import unittest
 import sys
-sys.path.append("src")
+sys.path.extend(["src", "oracle"])
 
 from network import Network
 from factor import Factor
@@ -313,6 +313,28 @@ class TestReduceSmall(unittest.TestCase):
         self.assertEqual(product_factor.values,
             [420, 2772, 3630, 1008, 4704, 5874, 2128, 3192, 1254, 2257,
              2752, 1326, 610, 2494, 782, 6039, 6192, 1972])
+
+
+class TestExtra(unittest.TestCase):
+
+
+    def setUp(self):
+        self.network = Network('data/alarm.bif')
+
+
+    def test_1(self):
+        factor1 = self.network.variable_to_factor(self.network.name_to_variable('Alarm'))
+        factor2 = self.network.variable_to_factor(self.network.name_to_variable('Leaving'))
+
+        product_factor = factor1.product(factor2)
+        answer = [
+            0.999*0.9999, 0.999*0.15, 0.001*0.9999, 0.001*0.15,
+            0.999*0.01, 0.999*0.5, 0.001*0.01, 0.001*0.05,
+            0.12*0.0001, 0.12*0.85, 0.88*0.0001, 0.88*0.85,
+            0.12*0.99, 0.12*0.5, 0.88*0.99, 0.88*0.5
+        ]
+        for index, (value1, value2) in enumerate(zip(product_factor.values, answer)):
+            self.assertAlmostEqual(value1, value2, 2, f'index {index}')
 
 
 if __name__ == '__main__':

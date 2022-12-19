@@ -1,12 +1,42 @@
 import unittest
 import sys
-sys.path.append("src")
+sys.path.extend(["src", "oracle"])
 
+import util
 from network import Network
-from algorithm import ve, barren_nodes
+from algorithm import ve, init_barren
+
+# oracle imports
+from probVE import VE
+from probGraphicalModels import (Alarm, Fire, Leaving, Report, Smoke, Tampering,
+     Graphical_model, bn_fire_alarm, Inference_method)
 
 
-# TODO add system tests for VE
+class TestVEAlarm(unittest.TestCase):
+
+
+    def setUp(self):
+        self.network = Network('data/alarm.bif')
+        self.network_oracle = VE(bn_fire_alarm)
+        util.verbosity = 0
+        Inference_method.max_display_level = 0
+
+
+    def test_all(self):
+        # variables = [Alarm, Fire, Leaving, Report, Smoke, Tampering]
+        variables = [Leaving]
+        for query in variables:
+            factor_oracle = self.network_oracle.query(Tampering, {})
+            factor = ve(self.network, [str(query)], {})
+            # print(factor_oracle)
+            # print(factor)
+
+            self.assertAlmostEqual(factor_oracle['False'], factor.values[0], 1)
+            self.assertAlmostEqual(factor_oracle['True'], factor.values[1], 1)
+
+
+    def tearDown(self):
+        util.verbosity = 1
 
 
 class TestBarrenAlarm(unittest.TestCase):
@@ -14,13 +44,18 @@ class TestBarrenAlarm(unittest.TestCase):
 
     def setUp(self):
         self.network = Network('data/alarm.bif')
+        util.verbosity = 0
+
+
+    def tearDown(self):
+        util.verbosity = 1
 
 
     def test_basic(self):
         query = ['Alarm', 'Smoke']
         evidence = {'Tampering': 'True'}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Leaving', 'Report']))
@@ -30,7 +65,7 @@ class TestBarrenAlarm(unittest.TestCase):
         query = ['Report', 'Smoke']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted([]))
@@ -40,7 +75,7 @@ class TestBarrenAlarm(unittest.TestCase):
         query = ['Report']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Smoke']))
@@ -50,7 +85,7 @@ class TestBarrenAlarm(unittest.TestCase):
         query = ['Alarm']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Leaving', 'Report', 'Smoke']))
@@ -60,7 +95,7 @@ class TestBarrenAlarm(unittest.TestCase):
         query = ['Tampering']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Fire', 'Smoke', 'Alarm', 'Leaving', 'Report']))
@@ -70,7 +105,7 @@ class TestBarrenAlarm(unittest.TestCase):
         query = ['Fire']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Tampering', 'Smoke', 'Alarm', 'Leaving', 'Report']))
@@ -80,7 +115,7 @@ class TestBarrenAlarm(unittest.TestCase):
         query = ['Smoke']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Tampering', 'Alarm', 'Leaving', 'Report']))
@@ -91,13 +126,18 @@ class TestBarrenEarthquake(unittest.TestCase):
 
     def setUp(self):
         self.network = Network('data/earthquake.bif')
+        util.verbosity = 0
+
+
+    def tearDown(self):
+        util.verbosity = 1
 
 
     def test_1(self):
         query = ['JohnCalls']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['MaryCalls']))
@@ -107,7 +147,7 @@ class TestBarrenEarthquake(unittest.TestCase):
         query = ['Alarm']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['JohnCalls', 'MaryCalls']))
@@ -117,7 +157,7 @@ class TestBarrenEarthquake(unittest.TestCase):
         query = ['Burglary']
         evidence = {}
 
-        barren = barren_nodes(self.network.variables, query, list(evidence.keys()))
+        barren = init_barren(self.network.variables, query, evidence)
         barren = sorted(list(map(lambda node: node.name, barren)))
 
         self.assertEqual(barren, sorted(['Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']))
