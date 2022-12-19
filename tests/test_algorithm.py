@@ -1,6 +1,7 @@
 import unittest
 import sys
 sys.path.extend(["src", "oracle"])
+import itertools
 
 import util
 from network import Network
@@ -22,17 +23,56 @@ class TestVEAlarm(unittest.TestCase):
         Inference_method.max_display_level = 0
 
 
-    def test_all(self):
-        # variables = [Alarm, Fire, Leaving, Report, Smoke, Tampering]
-        variables = [Leaving]
+    def test_without_evidence(self):
+        variables = [Alarm, Fire, Leaving, Report, Smoke, Tampering]
         for query in variables:
             factor_oracle = self.network_oracle.query(Tampering, {})
             factor = ve(self.network, [str(query)], {})
-            # print(factor_oracle)
-            # print(factor)
 
             self.assertAlmostEqual(factor_oracle['False'], factor.values[0], 1)
             self.assertAlmostEqual(factor_oracle['True'], factor.values[1], 1)
+
+
+    def _test_with_evidence(self, size):
+        variables = [Alarm, Fire, Leaving, Report, Smoke, Tampering]
+        for query in variables:
+            for evidence in itertools.combinations(variables, size):
+                if str(query) in map(str, evidence):
+                    return
+
+                for assignments in itertools.combinations(['False', 'True'], size):
+                    evidence_oracle = {evidence[i] : assignments[i] for i in range(size)}
+                    evidence   = {str(evidence[i]) : assignments[i] for i in range(size)}
+
+                    factor_oracle = self.network_oracle.query(query, evidence)
+                    factor = ve(self.network, [str(query)], evidence)
+
+                    self.assertAlmostEqual(factor_oracle['False'], factor.values[0], 5)
+                    self.assertAlmostEqual(factor_oracle['True'], factor.values[1], 5)
+
+
+    def test_with_1_evidence(self):
+        self._test_with_evidence(1)
+
+
+    def test_with_2_evidence(self):
+        self._test_with_evidence(2)
+
+
+    def test_with_3_evidence(self):
+        self._test_with_evidence(3)
+
+
+    def test_with_4_evidence(self):
+        self._test_with_evidence(4)
+
+
+    def test_with_5_evidence(self):
+        self._test_with_evidence(5)
+
+
+    def test_with_6_evidence(self):
+        self._test_with_evidence(6)
 
 
     def tearDown(self):

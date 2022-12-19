@@ -53,7 +53,7 @@ class Factor:
     def marginalize(self, variable):
         """Perform marginalisation on the factor for the given variable."""
         assert variable in self.variables
-        assert len(self.variables) > 1
+        assert len(self.variables) > 0
 
         chunk_num, chunk_size, jump = self._chunk_info(variable)
 
@@ -105,9 +105,6 @@ class Factor:
             return Factor._product_reduced(self, othr)
         if len(othr.variables) == 0:
             return Factor._product_reduced(othr, self)
-
-        # the factors need to have at least one factor in common
-        assert len(set(self.variables) & set(othr.variables)) > 0
 
         # create the final product table entries without the probabilities
         variables = sorted(list(set(self.variables + othr.variables)))

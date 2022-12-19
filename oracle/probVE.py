@@ -76,25 +76,3 @@ class VE(Inference_method):
             self.display(3, "Factor in detail", newFactor)
             not_contains_var.append(newFactor)
             return not_contains_var
-
-# bn1v = VE(bn_simple1)
-# bn1v.query(A, {})
-# bn1v.query(C, {})
-# Inference_method.max_display_level = 3   # show more detail in displaying
-# Inference_method.max_display_level = 1   # show less detail in displaying
-# bn1v.query(A, {C: True})
-# bn1v.query(B, {A: True, C: False})
-#
-# bn2v = VE(bn_fire_alarm)    # answers queries using variable elimination
-# bn2v.query(Tampering, {})
-# Inference_method.max_display_level = 0   # show no detail in displaying
-# bn2v.query(Leaving, {})
-# bn2v.query(Tampering, {}, elim_order=[Smoke, Report, Leaving, Alarm, Fire])
-# bn2v.query(Tampering, {Report: True})
-# bn2v.query(Tampering, {Report: True, Smoke: False})
-#
-# bn3v = VE(bn_grass_watering)
-# bn3v.query(Shoes_wet, {})
-# bn3v.query(Shoes_wet, {Rained: True})
-# bn3v.query(Shoes_wet, {Grass_shiny: True})
-# bn3v.query(Shoes_wet, {Grass_shiny: False, Rained: True})

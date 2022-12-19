@@ -15,17 +15,25 @@ from probGraphicalModels import (Alarm, Fire, Leaving, Report, Smoke, Tampering,
 
 
 if __name__ == '__main__':
-    # query my implementation
-    # util.verbosity = 2
-    # network = Network('data/alarm.bif')
 
-    # query = ['Leaving']
-    # # evidence = {'Smoke': 'True', 'Leaving': 'False'}
-    # evidence = {}
+    with open('output.txt', 'w') as file:
+    # with sys.stdout as file:
 
-    # factor = ve(network, query, evidence)
+        util.verbosity = 2  # 0, 1 or 2
+        util.file = file
 
-    # query the oracle
-    network_oracle = VE(bn_fire_alarm)
-    Inference_method.max_display_level = 4
-    factor_oracle = network_oracle.query(Leaving, {}, elim_order = [Report, Smoke, Alarm, Fire, Tampering])
+        # query my implementation
+        network = Network('data/alarm.bif')
+        query = ['Leaving', 'Smoke']
+        evidence = {'Alarm': 'False'}
+        factor = ve(network, query, evidence)
+
+        # network = Network('data/survey.bif')
+        # query = ['T']
+        # evidence = {'R': 'small'}
+        # factor = ve(network, query, evidence)
+
+        # query the oracle
+        # Inference_method.max_display_level = 4
+        # network_oracle = VE(bn_fire_alarm)
+        # factor_oracle = network_oracle.query(Leaving, {Alarm: 'False'})
