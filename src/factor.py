@@ -90,61 +90,59 @@ class Factor:
         return Factor(variables, values, self.reduced.copy() + [variable])
 
 
-    def _product_reduced(outer_factor, inner_factor):
-        """Compute the product when at least the outer factor is completely reduced."""
-        # note, since we use VE, a variable will always be reduced in every factor or none
-        assert len(set(outer_factor.reduced) & set(inner_factor.reduced))
-
-        values = list(map(lambda value: value * outer_factor.values[0], inner_factor.values))
-        reduced = sorted(list(set(outer_factor.reduced.copy() + inner_factor.reduced.copy())))
-        return Factor(inner_factor.variables.copy(), values, reduced)
+    def _product_reduced(reduced_factor, factor):
+        """Compute the product when at least one factor is completely reduced."""
+        values = list(map(lambda value: value * reduced_factor.values[0], factor.values))
+        reduced = sorted(list(set(reduced_factor.reduced.copy() + factor.reduced.copy())))
+        return Factor(factor.variables.copy(), values, reduced)
 
 
-    def product(self, other):
+    def product(self, othr):
         """Compute the product factor of this factor and the given factor."""
 
-        # put the lexicographically lower factor on the left or outside
-        factor_order = (self, other) if self.variables < other.variables else (other, self)
-        outer_factor = factor_order[0]
-        inner_factor = factor_order[1]
+        # simplify if at least one of the factors is completely reduced
+        if len(self.variables) == 0:
+            return Factor._product_reduced(self, othr)
+        if len(othr.variables) == 0:
+            return Factor._product_reduced(othr, self)
 
-        # if the outer_factor is completely reduced we simplify
-        if len(outer_factor.variables) == 0:
-            return Factor._product_reduced(outer_factor, inner_factor)
+        # the factors need to have at least one factor in common
+        assert len(set(self.variables) & set(othr.variables)) > 0
 
-        # the masks are used to consider whether two rows should be merged
-        outer_mask = [False] * len(outer_factor.variables)
-        inner_mask = [False] * len(inner_factor.variables)
+        # create the final product table entries without the probabilities
+        variables = sorted(list(set(self.variables + othr.variables)))
+        rows = list(itertools.product(*map(lambda variable: variable.domain, variables)))
 
-        # compute the variables which are in both the factors
-        common_variables = []
+        # the masks are used to get an assignment for indexing the factors
+        mask_self = [variable in self.variables for variable in variables]
+        mask_othr = [variable in othr.variables for variable in variables]
 
-        for i in range(len(outer_factor.variables)):
-            for j in range(len(inner_factor.variables)):
-                if outer_factor.variables[i] == inner_factor.variables[j]:
-                    common_variables.append(outer_factor.variables[i])
-                    outer_mask[i] = True
-                    inner_mask[j] = True
-        common_variables.sort()
-
-        assert len(common_variables) > 0  # 1 or more variables in common
-
-        # explicitely construct all of the rows for both factors
-        outer_rows = list(itertools.product(*map(lambda variable: variable.domain, outer_factor.variables)))
-        inner_rows = list(itertools.product(*map(lambda variable: variable.domain, inner_factor.variables)))
+        # convert an ordered assignment of values to an index in the factor
+        def assignment_to_index(factor, assignment):
+            index = 0
+            size = 1
+            for i in range(len(factor.variables) - 1, -1, -1):
+                index += size * factor.variables[i].domain.index(assignment[i])
+                size *= len(factor.variables[i].domain)
+            return index
 
         # create the new values list
         values = []
-        for outer_index, outer_row in enumerate(outer_rows):
-            for inner_index, inner_row in enumerate(inner_rows):
-                outer_masked = list(itertools.compress(outer_row, outer_mask))
-                inner_masked = list(itertools.compress(inner_row, inner_mask))
-                if outer_masked == inner_masked:
-                    values.append(outer_factor.values[outer_index] * inner_factor.values[inner_index])
+        for row in rows:
+            # get the value assignments, i.e. the rows for the factor tables
+            assignment_self = list(itertools.compress(row, mask_self))
+            assignment_othr = list(itertools.compress(row, mask_othr))
 
-        # create the new variables list, the combined reduced list and factor
-        variables = sorted(list(set(self.variables + other.variables)))
-        reduced = sorted(list(set(outer_factor.reduced.copy() + inner_factor.reduced.copy())))
+            # assignment to index in factors
+            index_self = assignment_to_index(self, assignment_self)
+            index_othr = assignment_to_index(othr, assignment_othr)
+
+            # calculate the new value
+            value = self.values[index_self] * othr.values[index_othr]
+            values.append(value)
+
+        # create the combined reduced list and factor
+        reduced = sorted(list(set(self.reduced.copy() + othr.reduced.copy())))
         return Factor(variables, values, reduced)
 
 

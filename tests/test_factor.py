@@ -221,7 +221,7 @@ class TestReduceSmallProduct(unittest.TestCase):
             self.assertAlmostEqual(value1, value2)
 
 
-class TestReduceSmall(unittest.TestCase):
+class TestProductSmall(unittest.TestCase):
 
 
     def test_1(self):
