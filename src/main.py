@@ -19,7 +19,7 @@ if __name__ == '__main__':
     with open('output.txt', 'w') as file:
     # with sys.stdout as file:
 
-        util.verbosity = 2  # 0, 1 or 2
+        util.verbosity = 1  # 0, 1 or 2
         util.file = file
 
         # query my implementation
@@ -29,8 +29,8 @@ if __name__ == '__main__':
         factor = ve(network, query, evidence)
 
         # network = Network('data/survey.bif')
-        # query = ['T']
-        # evidence = {'R': 'small'}
+        # query = ['T', 'E']
+        # evidence = {'R': 'small', 'A': 'adult'}
         # factor = ve(network, query, evidence)
 
         # query the oracle

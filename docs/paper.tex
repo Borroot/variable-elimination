@@ -1,0 +1,186 @@
+\documentclass[a4paper]{article}
+
+%\usepackage[a4paper,margin=3cm, footskip=0.25in]{geometry}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{adjustbox}
+\usepackage{varwidth}
+
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{listings}
+
+\author{Bram Pulles -- S1015194}
+\title{\textbf{Variable Elimination for\\Bayesian Networks}}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\pagebreak
+\section{Introduction}
+A Bayesian network is a probabilistic model that represents conditional
+dependencies between a set of variables through the use of a directed acyclic
+graph. Such a network can be utilised to calculate the joint probability of a
+set of variables given certain evidence. There are several algorithms in
+existence which can infer exactly this information from a Bayesian network,
+variable elimination being one of them. In this report we explain how variable
+elimination works and we provide a reference implementation.
+
+To this end, we describe the variable elimination algorithm in section
+\ref{sec: variable elimination}. After this, we talk about the implementation
+of variable elimination in \ref{sec: implementation}. Lastly, we consider the
+conclusions which can be drawn from this work in section \ref{sec: conclusion}
+
+\section{Algorithm}\label{sec: variable elimination}
+The variable elimination algorithm, shown in block \ref{alg: ve}, operates on
+factors, variables, a query, and evidence. In a Bayesian network, every node is
+a variable with a domain of possible values and a corresponding conditional
+probability table, which is translated into a factor with the same properties.
+The query is a set of variables for which we want to compute the likelihood
+given a particular set of evidence. Evidence consists of variable-value pairs
+that fixate the variables to the provided values.
+
+\begin{algorithm}
+	\caption{Variable Elimination}
+	\label{alg: ve}
+	\begin{algorithmic}[1]
+		\Require Bayesian network factors and variables, query and evidence
+		\Ensure probability table of the query variables given the evidence
+		\Function{VE}{factors, variables, query, evidence}
+			\State barren := \Call{Barren}{variables, query, evidence}
+			\State factors := reduce all nonbarren factors using the evidence
+			\State order := variables $\setminus$ barren $\cup$ query $\cup$ evidence
+			\For{$\varphi \in$ order}
+				\State factor := product of all factors containing $\varphi$
+				\State factor := marginalize $\varphi$ in factor
+				\State factors := remove all factors containing $\varphi$
+				\State factors := add new factor
+			\EndFor
+			\State factor := product of all factors
+			\State factor := normalize factor
+			\State \textbf{return} factor
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+The first step of the algorithm is to identify all the barren variables, which
+are variables that do not need to be considered when determining the likelihood
+of the query given the evidence. Removing the computation steps related to
+these variables can significantly reduce the overall cost. A barren variable is
+defined as any variable that is neither queried nor observed, and has either no
+children or only barren nodes as children. The definition of a barren variable
+allows for the use of a recursive algorithm, which is described in block
+\ref{alg: barren}.
+
+\begin{algorithm}
+	\caption{Barren}
+	\label{alg: barren}
+	\begin{algorithmic}[1]
+		\Function{recurs}{variable, nonbarren, barren}
+			\If{variable $\in$ nonbarren}
+				\For{child $\in$ variable.children}
+					\State \Call{recurs}{child, nonbarren, barren}
+				\EndFor
+				\State \Return{false}
+			\EndIf
+			\If{variable.children = $\emptyset$}
+				\State barren := barren $\cup$ variable
+				\State \Return{true}
+			\EndIf
+			\If{$\forall$ child $\in$ variable.children [\Call{recurs}{child,
+			nonbarren, barren}]}
+				\State barren := barren $\cup$ variable
+				\State \Return{true}
+			\EndIf
+			\For{child $\in$ variable.children}
+				\State \Call{recurs}{child, nonbarren, barren}
+			\EndFor
+			\State \Return{false}
+		\EndFunction
+		\Function{barren}{variables, query, evidence}
+			\State nonbarren := query $\cup$ evidence
+			\State barren := $\emptyset$
+			\State parents := $\forall$ variable [variable.parents =
+			$\emptyset$]
+			\For{variable $\in$ parents}
+				\If{\Call{recurs}{variable, nonbarren, barren}}
+					\State barren := barren $\cup$ variable
+				\EndIf
+			\EndFor
+			\State \Return{barren}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+The second step of the algorithm is to reduce all the factors of nonbarren
+variables using the evidence. This means that the evidence variables are set to
+their provided value in all factors.
+
+The third step of the algorithm determines the variables which need to be
+marginalized. These are all the nonbarren variables that are not queried or in
+the evidence. In this step it is also possible to give an ordered set, as the
+order greatly improves the performance of the algorithm. In our implementation,
+the order is given by the user or an arbitrary order is chosen.
+
+Now the main loop of the algorithm begins. During each iteration all factors
+containing the current variable $\varphi$ are multiplied together. Meaning all
+rows compatible with each other are multiplied together creating a new factor.
+The variable $\varphi$ is marginalized from the product factor. The
+marginalized factor is added back to the factors list while all other factors
+containing $\varphi$ are removed.
+
+In the final step we multiply all the remaining factors together and normalize
+the resulting factor. This factor now contains the likelihood of our query
+given the evidence in a nice table.
+
+\section{Implementation}\label{sec: implementation}
+The implementation of the variable elimination algorithm is done in Python, it
+can compute barren nodes, supports a set of query variables, a set of evidence
+pairs and works for any variable domain size. There is also support for writing
+the output to a file or the prompt, and three different verbosity levels:
+quiet~(0), brief~(1) and elaborate~(2).
+
+The code is stacked with comments to denote what is happening. Nevertheless, it
+might be worth to note that the factor is implemented as a list of variables,
+reduced variables and values. The values are implemented as an ordered list of
+the probability column for the factor. The comments in the code gives more
+detail about how this is used to compute the three operations on factors. A lot
+of effort has been put in to make it readable.
+
+Given that more than half of the code is tests, we got relatively high
+confidence in the correctness of the code. Tests are written for five
+algorithms: all three factor operations, the barren nodes computation and the
+variable elimination algorithm. The former two are relatively straightforward.
+The variable elimination algorithm is tested using an oracle. The oracle is
+formed from the code of AIPython2. Sadly, this oracle does not support multiple
+query variables and only contains the alarm network for which we also have a
+\texttt{bif} file available. However, we do use this network to its fullest.
+The tester generates a test for \textit{every} possible configuration of query
+and evidence variables that the oracle supports for the alarm network. All
+tests compare the output of our program with the oracle and verifies the
+answers are the same, which luckily, is the case.
+
+The tests can be run using \texttt{python -m unittest discover tests}. Using
+the \texttt{python src/main.py} you can interface with our implementation and
+with the oracle. The \texttt{survey.bif} network can be used to verify
+correctness when using domains bigger than two.
+
+\section{Conclusion}\label{sec: conclusion}
+In conclusion, the variable elimination algorithm is a powerful method for
+calculating the joint probability of a set of variables in a Bayesian network,
+given certain evidence. In this work, an oracle was used to validate the
+results of the algorithm. While the oracle was not complete and did not cover
+all possible cases, it was still useful in assessing the accuracy of the
+algorithm. This highlights the importance of having some form of ground truth
+for testing and validating the results of the algorithm, even if it is not
+comprehensive. The provided reference implementation serves as a useful guide
+for implementing the algorithm in practice, and careful testing and validation
+using appropriate methods can help ensure the accuracy of the results.
+
+\end{document}
